@@ -76,7 +76,13 @@ This is the place for you to write reflections:
 
 ### Mandatory (Publisher) Reflections
 
-#### Reflection Publisher-1
+#### **Reflection Publisher-1**
+
+1. Penggunaan satu struct model sudah cukup untuk mengimplementasikan Observer Patterrn, kecuali jika nantinya akan dibutuhkan polimorfisme yang lebih kompleks sehingga trait sebagai interface akan lebih dibutuhkan.
+
+2. Karena id di Program dan url di Subscriber harus unik, penggunaan DashMap lebih tepat daripada Vec karena DashMap memungkinkan pencarian dan penghapusan dengan efisiensi yang lebih baik melalui akses langsung berdasarkan key yg diberikan.
+
+3. Ya, DashMap tetap diperlukan meskipun kita mengimplementasikan Singleton pattern, karena Singleton hanya memastikan bahwa hanya ada satu instance global, tetapi tidak menjamin thread safety. Alternatif seperti menggunakan Mutex<HashMap<...>> atau RwLock<HashMap<...>> cenderung menimbulkan bottleneck akibat adanya global lock, sehingga menghambat akses concurrent. Sementara itu, DashMap menggunakan teknik sharding, yang memungkinkan beberapa thread mengakses bagian-bagian berbeda dari map secara bersamaan tanpa saling mengganggu, yg dapat menjadikan solusi yang lebih efisien untuk mengelola data SUBSCRIBERS secara thread-safe.
 
 #### Reflection Publisher-2
 
