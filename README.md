@@ -48,22 +48,22 @@ You can install Postman via this website: https://www.postman.com/downloads/
     (You might want to use `cargo check` if you only need to verify your work without running the app.)
 
 ## Mandatory Checklists (Publisher)
--   [ ] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
+-   [V] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
 -   **STAGE 1: Implement models and repositories**
-    -   [ ] Commit: `Create Subscriber model struct.`
-    -   [ ] Commit: `Create Notification model struct.`
-    -   [ ] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
-    -   [ ] Commit: `Implement add function in Subscriber repository.`
-    -   [ ] Commit: `Implement list_all function in Subscriber repository.`
-    -   [ ] Commit: `Implement delete function in Subscriber repository.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
+    -   [V] Commit: `Create Subscriber model struct.`
+    -   [V] Commit: `Create Notification model struct.`
+    -   [V] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
+    -   [V] Commit: `Implement add function in Subscriber repository.`
+    -   [V] Commit: `Implement list_all function in Subscriber repository.`
+    -   [V] Commit: `Implement delete function in Subscriber repository.`
+    -   [V] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
 -   **STAGE 2: Implement services and controllers**
-    -   [ ] Commit: `Create Notification service struct skeleton.`
+    -   [V] Commit: `Create Notification service struct skeleton.`
     -   [V] Commit: `Implement subscribe function in Notification service.`
     -   [V] Commit: `Implement subscribe function in Notification controller.`
     -   [V] Commit: `Implement unsubscribe function in Notification service.`
     -   [V] Commit: `Implement unsubscribe function in Notification controller.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-2" questions in this README.
+    -   [V] Write answers of your learning module's "Reflection Publisher-2" questions in this README.
 -   **STAGE 3: Implement notification mechanism**
     -   [ ] Commit: `Implement update method in Subscriber model to send notification HTTP requests.`
     -   [ ] Commit: `Implement notify function in Notification service to notify each Subscriber.`
@@ -78,12 +78,32 @@ This is the place for you to write reflections:
 
 #### **Reflection Publisher-1**
 
-1. Penggunaan satu struct model sudah cukup untuk mengimplementasikan Observer Patterrn, kecuali jika nantinya akan dibutuhkan polimorfisme yang lebih kompleks sehingga trait sebagai interface akan lebih dibutuhkan.
+1. >In the Observer pattern diagram explained by the Head First Design Pattern book, Subscriber is defined as an interface. Explain based on your understanding of Observer design patterns, do we still need an interface (or trait in Rust) in this BambangShop case, or a single Model struct is enough?
 
-2. Karena id di Program dan url di Subscriber harus unik, penggunaan DashMap lebih tepat daripada Vec karena DashMap memungkinkan pencarian dan penghapusan dengan efisiensi yang lebih baik melalui akses langsung berdasarkan key yg diberikan.
+   
+   Penggunaan satu struct model sudah cukup untuk mengimplementasikan Observer Patterrn, kecuali jika nantinya akan dibutuhkan polimorfisme yang lebih kompleks sehingga trait sebagai interface akan lebih dibutuhkan.
 
-3. Ya, DashMap tetap diperlukan meskipun kita mengimplementasikan Singleton pattern, karena Singleton hanya memastikan bahwa hanya ada satu instance global, tetapi tidak menjamin thread safety. Alternatif seperti menggunakan Mutex<HashMap<...>> atau RwLock<HashMap<...>> cenderung menimbulkan bottleneck akibat adanya global lock, sehingga menghambat akses concurrent. Sementara itu, DashMap menggunakan teknik sharding, yang memungkinkan beberapa thread mengakses bagian-bagian berbeda dari map secara bersamaan tanpa saling mengganggu, yg dapat menjadikan solusi yang lebih efisien untuk mengelola data SUBSCRIBERS secara thread-safe.
+2. > id in Program and url in Subscriber is intended to be unique. Explain based on your understanding, is using Vec (list) sufficient or using DashMap (map/dictionary) like we currently use is necessary for this case?
 
-#### Reflection Publisher-2
+   
+   Karena id di Program dan url di Subscriber harus unik, penggunaan DashMap lebih tepat daripada Vec karena DashMap memungkinkan pencarian dan penghapusan dengan efisiensi yang lebih baik melalui akses langsung berdasarkan key yg diberikan.
+
+3. >When programming using Rust, we are enforced by rigorous compiler constraints to make a thread-safe program. In the case of the List of Subscribers (SUBSCRIBERS) static variable, we used the DashMap external library for thread safe HashMap. Explain based on your understanding of design patterns, do we still need DashMap or we can implement Singleton pattern instead?
+   
+   Ya, DashMap tetap diperlukan meskipun kita mengimplementasikan Singleton pattern, karena Singleton hanya memastikan bahwa hanya ada satu instance global, tetapi tidak menjamin thread safety. Alternatif seperti menggunakan Mutex<HashMap<...>> atau RwLock<HashMap<...>> cenderung menimbulkan bottleneck akibat adanya global lock, sehingga menghambat akses concurrent. Sementara itu, DashMap menggunakan teknik sharding, yang memungkinkan beberapa thread mengakses bagian-bagian berbeda dari map secara bersamaan tanpa saling mengganggu, yg dapat menjadikan solusi yang lebih efisien untuk mengelola data SUBSCRIBERS secara thread-safe.
+
+#### **Reflection Publisher-2**
+
+1. >In the Model-View Controller (MVC) compound pattern, there is no “Service” and “Repository”. Model in MVC covers both data storage and business logic. Explain based on your understanding of design principles, why we need to separate “Service” and “Repository” from a Model? 
+ 
+    Dalam arsitektur MVC, pemisahan Service dan Repository dari Model didasarkan pada prinsip Separation of Concerns dan Single Responsibility Principle. Model hanya mewakili data dan aturan dasar, sedangkan Repository bertanggung jawab atas operasi database seperti insert, delete, dan query, dan Service mengelola logika yg kompleks seperti validasi dan pemrosesan data. Jika semua fungsi ini digabungkan dalam Model, maka akan tercipta God Object yang kompleks sehingga sulit untuk diuji, dipelihara, dan dikembangkan.
+
+2. >What happens if we only use the Model? Explain your imagination on how the interactions between each model (Program, Subscriber, Notification) affect the code complexity for each model?
+
+    Jika kita hanya menggunakan Model tanpa Service dan Repository, setiap model harus menangani penyimpanan data dan logika sekaligus, yang menyebabkan tight coupling antara entitas seperti Program, Subscriber, dan Notification. Hal ini membuat kode menjadi sulit dibaca, di-debug, dan diuji secara unit karena logika yang sama dapat terduplikasi di berbagai tempat, sehingga setiap perubahan kecil dalam satu model bisa berdampak luas pada model lainnya dan menambah technical debt.
+
+3. > Have you explored more about Postman? Tell us how this tool helps you to test your current work. You might want to also list which features in Postman you are interested in or feel like it is helpful to help your Group Project or any of your future software engineering projects.
+
+    Postman sangat membantu saya dalam pengujian API dengan memungkinkan pengiriman HTTP request (GET, POST, PUT, DELETE) dan melihat response JSON secara langsung. Fitur seperti Collections, Environment Variables, Automated Testing, dan Collection Runner memudahkan pengorganisasian request, pengujian otomatis, dan dokumentasi API. Hal ini dapat membuat proses debugging dan validasi endpoint menjadi lebih cepat dan efisien, yang sangat berguna untuk proyek kelompok maupun pengembangan API backend di nantinya.
 
 #### Reflection Publisher-3
